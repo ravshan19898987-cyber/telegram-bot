@@ -1,7 +1,9 @@
+import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, CommandHandler, filters, ContextTypes
 
-TOKEN = "8551468127:AAG48CRg8fJecQ_uMhM0S13aqsCTA1Pqbrw"
+# 🔑 TOKEN environmentdan olinadi
+TOKEN = os.getenv("BOT_TOKEN")
 
 # Kim nechta odam qo‘shgan
 invites = {}
@@ -11,22 +13,16 @@ joined_by = {}
 
 
 async def new_members(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # 🔍 DEBUG (terminalda chiqadi)
-    print(update.message)
-
     if update.message.new_chat_members:
         inviter = update.message.from_user
 
         for user in update.message.new_chat_members:
 
-            # Botlarni hisoblamaymiz
             if user.is_bot:
                 continue
 
-            # Kim qo‘shganini yozamiz
             joined_by[user.id] = inviter.id
 
-            # Agar boshqa odam qo‘shgan bo‘lsa
             if inviter.id != user.id:
                 invites[inviter.id] = invites.get(inviter.id, 0) + 1
 
@@ -52,5 +48,7 @@ app = ApplicationBuilder().token(TOKEN).build()
 
 app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, new_members))
 app.add_handler(CommandHandler("stats", stats))
+
+print("Bot ishga tushdi 🚀")  # log uchun
 
 app.run_polling()
